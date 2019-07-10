@@ -26,14 +26,19 @@ export default class RegionMap extends React.Component<any, any>{
             this.chart = echarts.init(root);
             this.chart.setOption(this.getOptions(props));
             const t = this;
-            this.chart.on("click", (params) => {
-                t.props.dispatch({ type: "file/areaSelect", payload: params });
+            this.chart.on("mapselectchanged", (params) => {
+                t.props.dispatch({ type: "file/areaSelect", payload: params.batch[0] });
             });
         }
     }
 
     getOptions(props) {
-        const { uid, config } = props;
+        const { uid, config, areaname, mapfile } = props;
+        const mapary = mapfile && mapfile.features || [];
+        const data = mapary.map(item => ({
+            name: item.properties.name,
+            selected: item.properties.name == areaname
+        }));
         return {
             series: [
                 {
@@ -42,6 +47,8 @@ export default class RegionMap extends React.Component<any, any>{
                     top: "middle", // 到时候抽取出来
                     left: 'center',// 到时候抽取出来
                     aspectScale: 1,// 到时候抽取出来
+                    selectedMode: "single",
+                    data,
                     label: {
                         normal: {
                             show: true,
