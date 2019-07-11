@@ -43,24 +43,24 @@ export default class MapConfigLine extends React.Component<any, any>{
 
         return (
             <div className="config-line">
-                <div className="config-item">
+                <label className="config-item">
                     <span>画布尺寸</span>
                     <InputNumber {...inpprops(CONFIG_LABEL.MAP_WIDTH)} />
                     <span> × </span>
                     <InputNumber {...inpprops(CONFIG_LABEL.MAP_HEIGHT)} />
-                </div>
-                <div className="config-item">
+                </label>
+                <label className="config-item">
                     <span>字体大小</span>
                     <InputNumber {...inpprops(CONFIG_LABEL.MAP_LABELSIZE)} />
-                </div>
-                <div className="config-item">
+                </label>
+                <label className="config-item">
                     <span>aspectScale</span>
                     <InputNumber {...inpprops(CONFIG_LABEL.SCALE)} />
-                </div>
-                <div className="config-item">
+                </label>
+                <label className="config-item">
                     <span>步距</span>
                     <InputNumber {...inpprops(CONFIG_LABEL.MOVE_GAP)} />
-                </div>
+                </label>
             </div>
         )
     }

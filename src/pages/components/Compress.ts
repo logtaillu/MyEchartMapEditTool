@@ -1,5 +1,5 @@
 // 转码压缩，copy from echarts-map-tools
-export default function compress(json) {
+export default function compressFile(json) {
     json = json || {};
     json = Object.assign({}, json);
     if (json.UTF8Encoding) {

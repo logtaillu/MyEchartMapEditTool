@@ -4,7 +4,7 @@ import { Button, Upload, Icon, Modal, Switch } from "antd";
 import { UploadProps } from 'antd/lib/upload';
 import { connect } from "dva";
 import FileSaver from "file-saver";
-import compress from "./Compress";
+import compressFile from "./Compress";
 @connect(({ file }: any) => ({ ...file }))
 export default class FileAction extends React.Component<any, any>{
     constructor(props: any) {
@@ -15,7 +15,7 @@ export default class FileAction extends React.Component<any, any>{
 
     downloadFile() {
         const { mapfile, filename, compress } = this.props;
-        let newfile = compress ? compress(mapfile) : mapfile;
+        let newfile = compress ? compressFile(mapfile) : mapfile;
         let downloadFile = new Blob([JSON.stringify(newfile || "{}")], { type: "application/json" });
         FileSaver.saveAs(downloadFile, filename);
     }
@@ -55,7 +55,7 @@ export default class FileAction extends React.Component<any, any>{
                 </Upload>
                 <Button onClick={this.downloadFile} disabled={!uid} type="primary">导出文件</Button>
                 <div className="encode-switch">
-                    <span>{alreadyEncoding ? "已转码" : "是否转码："}</span>
+                    <span className="desc">{alreadyEncoding ? "已压缩" : "是否压缩"}</span>
                     {alreadyEncoding ? null : <Switch checked={compress} onChange={this.changeCompress} />}
                 </div>
             </div>
