@@ -10,7 +10,7 @@ export const DEFAULT_CONFIG = {
     [CONFIG_LABEL.MAP_WIDTH]: 600,
     [CONFIG_LABEL.MAP_HEIGHT]: 650,
     [CONFIG_LABEL.MAP_LABELSIZE]: 16,
-    [CONFIG_LABEL.MOVE_GAP]: 1
+    [CONFIG_LABEL.MOVE_GAP]: 0.01
 };
 export function getDefaultConfig() {
     let config = {};
@@ -20,3 +20,5 @@ export function getDefaultConfig() {
     });
     return config;
 }
+// position格式化数字
+export const CP_FORMAT = "0.000000";
