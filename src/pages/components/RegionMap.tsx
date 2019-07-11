@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from "dva";
 import { CONFIG_LABEL } from "../config/config";
 import echarts from "echarts";
+import { getCurrentMapFileItem } from "./GetCurrentMapFileItem";
 
 @connect(({ file }: any) => ({ ...file }))
 export default class RegionMap extends React.Component<any, any>{
@@ -17,12 +18,13 @@ export default class RegionMap extends React.Component<any, any>{
     }
 
     initChart(props) {
-        const { config, mapfile, uid } = props;
+        const { config, mapfiles, currentUid } = props;
+        const mapfile = getCurrentMapFileItem({ mapfiles, currentUid });
         const root = this.root;
-        if (root && uid) {
+        if (root && currentUid && mapfile) {
             root.style.height = config[CONFIG_LABEL.MAP_HEIGHT] + "px";
             root.style.width = config[CONFIG_LABEL.MAP_WIDTH] + "px";
-            echarts.registerMap(uid + "", mapfile);
+            echarts.registerMap(currentUid + "", mapfile.data);
             this.chart = echarts.init(root);
             this.chart.setOption(this.getOptions(props));
             const t = this;
@@ -33,8 +35,9 @@ export default class RegionMap extends React.Component<any, any>{
     }
 
     getOptions(props) {
-        const { uid, config, areaname, mapfile } = props;
-        const mapary = mapfile && mapfile.features || [];
+        const { config, areaname, currentUid } = props;
+        const mapfile = getCurrentMapFileItem(props);
+        const mapary = mapfile && mapfile.data && mapfile.data.features || [];
         const data = mapary.map(item => ({
             name: item.properties.name,
             selected: item.properties.name == areaname
@@ -43,7 +46,7 @@ export default class RegionMap extends React.Component<any, any>{
             series: [
                 {
                     type: "map",
-                    mapType: uid + "",
+                    mapType: currentUid + "",
                     top: "middle",
                     left: 'center',
                     aspectScale: config[CONFIG_LABEL.SCALE],
@@ -76,8 +79,9 @@ export default class RegionMap extends React.Component<any, any>{
 
     componentWillReceiveProps(nextProps) {
         if (this.chart) {
-            if (this.props.uid !== nextProps.uid) {
-                echarts.registerMap(nextProps.uid + "", nextProps.mapfile);
+            const current = getCurrentMapFileItem(nextProps);
+            if (this.props.currentUid !== nextProps.currentUid && current && current.data) {
+                echarts.registerMap(nextProps.currentUid + "", current.data);
             }
             this.chart.setOption(this.getOptions(nextProps));
             const newconfig = nextProps.config || {};

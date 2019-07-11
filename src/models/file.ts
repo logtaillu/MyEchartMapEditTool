@@ -1,11 +1,12 @@
 import { getDefaultConfig, CONFIG_LABEL, CP_FORMAT, DEFAULT_COMPRESS } from "../pages/config/config";
 import echarts from "echarts";
 import numeral from "numeral";
+import { getCurrentMapFileItem } from '@/pages/components/GetCurrentMapFileItem';
 export default {
     namespace: "file",
     state: {
-        mapfile: null,//json数据
-        filename: "",//文件名
+        mapfiles: [],// json列表
+        currentUid: "",//当前json文件uid
         config: getDefaultConfig(),//配置项
         areaname: "",//选中区域名字
         cpposition: [],//选中区域位置
@@ -14,12 +15,19 @@ export default {
     reducers: {
         // 切换压缩转码选项
         changeCompress(state, { payload: { checked } }) {
-            return { ...state, compress: checked };  
+            return { ...state, compress: checked };
         },
         // 读取文件后保存内容
-        saveFileContent(state: any, { payload: { data, filename, uid } }: any) {
+        saveFileContent(state: any, { payload: { mapfiles, append } }: any) {
+            // 覆盖or追加
+            mapfiles = append ? (mapfiles || []) : (state.mapfiles || []).concat(mapfiles || []);
+            let currentUid = state.currentUid;
+            // 设置当前file
+            if ((!append || !currentUid) && mapfiles && mapfiles.length) {
+                currentUid = mapfiles[0].uid;
+            }
             return {
-                ...state, mapfile: data, filename, uid, areaname: "",
+                ...state, mapfiles, currentUid, areaname: "",
                 cpposition: []
             };
         },
@@ -34,7 +42,8 @@ export default {
             if (name === state.areaname) {
                 return { ...state, areaname: "", cpposition: [] };
             }
-            const mapary = state && state.mapfile && state.mapfile.features || [];
+            const curfile = getCurrentMapFileItem(state);
+            const mapary = curfile && curfile.data && curfile.data.features || [];
             const item = mapary.find(s => s.properties && s.properties.name == name);
             if (item && item.properties.cp) {
                 return {
@@ -54,8 +63,9 @@ export default {
         },
         // 键盘移动触发cpposition改变
         movePosition(state: any, { payload: { ind, action } }) {
-            let { mapfile, config, areaname, cpposition } = state;
-            const mapary = mapfile && mapfile.features || [];
+            let { mapfiles, config, areaname, cpposition } = state;
+            const curfile = getCurrentMapFileItem(state);
+            const mapary = curfile && curfile.data && curfile.data.features || [];
             const item = mapary.find(s => s.properties && s.properties.name == areaname);
             // 找到这个area
             if (item) {
@@ -65,15 +75,15 @@ export default {
                 nowcp[ind] = numeral(numeral(nowcp[ind]).format(CP_FORMAT)).value();
                 item.properties.cp = nowcp;
                 cpposition = nowcp.concat([]);
-                echarts.registerMap(state.uid + "", mapfile);
+                echarts.registerMap(curfile.uid + "", curfile.data);
             }
-            return { ...state, mapfile, cpposition };
+            return { ...state, mapfiles: mapfiles.concat([]), cpposition };
         },
         // 手动修改cpposition blur触发
         changeCPPositiion(state: any) {
             let cp = (state.cpposition || []).concat([]);
-            const mapfile = state && state.mapfile;
-            const mapary = mapfile && mapfile.features || [];
+            const curfile = getCurrentMapFileItem(state);
+            const mapary = curfile && curfile.data && curfile.data.features || [];
             const item = mapary.find(s => s.properties && s.properties.name == state.areaname);
             if (item) {
                 let nowcp = item.properties.cp || [];
@@ -87,8 +97,8 @@ export default {
                 cp = nowcp.concat([]);
                 item.properties.cp = nowcp;
             }
-            echarts.registerMap(state.uid + "", mapfile);
-            return { ...state, mapfile, cpposition: cp };
+            echarts.registerMap(curfile.uid + "", curfile.data);
+            return { ...state, mapfiles: state.mapfiles.concat([]), cpposition: cp };
         }
     }
 }
