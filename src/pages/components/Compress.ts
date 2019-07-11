@@ -1,7 +1,8 @@
 // 转码压缩，copy from echarts-map-tools
+import $ from "n-zepto";
 export default function compressFile(json) {
     json = json || {};
-    json = Object.assign({}, json);
+    json = $.extend(true,{},json);
     if (json.UTF8Encoding) {
         // tslint:disable-next-line:no-console
         console.log("already compressed");

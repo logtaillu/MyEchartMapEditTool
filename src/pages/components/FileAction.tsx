@@ -1,7 +1,7 @@
 // 文件导入和导出
 import React from 'react';
-import { Button, Upload, Icon, Modal, Switch, Input } from "antd";
-import { UploadProps } from 'antd/lib/upload';
+import { Button, Icon, Modal, Switch } from "antd";
+import JSZip from "jszip";
 import { connect } from "dva";
 import FileSaver from "file-saver";
 import compressFile from "./Compress";
@@ -19,13 +19,35 @@ export default class FileAction extends React.Component<any, any>{
 
     downloadFile(onlyCurrent) {
         const { mapfiles, compress } = this.props;
+        let downloadList: any[] = [];
+        // 获取下载列表
         if (onlyCurrent) {
             const curfile = getCurrentMapFileItem(this.props);
-            let newfile = compress ? compressFile(curfile.data) : curfile.data;
-            let downloadFile = new Blob([JSON.stringify(newfile || "{}")], { type: "application/json" });
-            FileSaver.saveAs(downloadFile, curfile.filename);
+            if (curfile) {
+                downloadList.push(curfile);
+            }
         } else {
-            // 批量打包下载
+            downloadList = mapfiles.concat([]);
+        }
+        // 压缩文件
+        let downFiles = downloadList.map(curfile => {
+            let newdata = compress ? compressFile(curfile.data) : curfile.data;
+            newdata = new Blob([JSON.stringify(newdata || "{}")], { type: "application/json" });
+            return { data: newdata, name: curfile.filename };
+        });
+        if (downFiles && downFiles.length == 1) {
+            let newfile = downFiles[0];
+            FileSaver.saveAs(newfile.data,newfile.name);
+        } else if (downFiles.length > 1) {
+            let zip = new JSZip();
+            downFiles.map(cur=>{
+                zip.file(cur.name,cur.data);
+            });
+            zip.generateAsync({type:"blob"}).then(function(content){
+                FileSaver.saveAs(content,"map.zip");
+            });
+        } else {
+            Modal.info({ title: "没有可下载的文件" });
         }
     }
 
@@ -33,12 +55,13 @@ export default class FileAction extends React.Component<any, any>{
         this.props.dispatch({ type: "file/changeCompress", payload: { checked } });
     }
 
+    // 读取文件列表
     uploadFiles(append, e) {
         const t = this;
         let fileList = e.target.files || [];
         let uploadArr: any[] = [];
         let errarr: any[] = [];
-        for(let fileInd=0;fileInd<fileList.length;fileInd++){
+        for (let fileInd = 0; fileInd < fileList.length; fileInd++) {
             let cur = fileList[fileInd];
             if (/^.+\.json$/g.test(cur.name)) {
                 uploadArr.push(cur);
@@ -66,6 +89,7 @@ export default class FileAction extends React.Component<any, any>{
             });
         }
     }
+    // 获取input file组件
     fileInput = {};
     getFileInput(append) {
         const key = append ? "append" : "normal";
