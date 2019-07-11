@@ -8,4 +8,4 @@
 5. 下载转码压缩[copy from echarts-map-tools]  
 ***  
 task:  
-1. 集成地图获取:datav的会403，可能要用高德的api，参照echarts-map-tools?
+1. 集成地图获取:datav的会403，可能要用高德的api，参照echarts-map-tools?再说吧
