@@ -13,4 +13,3 @@ task:
     1. 原功能是否正常
     2. 打包下载
     3. 选择切换与删除
-    4. Upload会多次触发beforeUpload，应该改用input file

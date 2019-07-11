@@ -1,17 +1,20 @@
 // 文件导入和导出
 import React from 'react';
-import { Button, Upload, Icon, Modal, Switch } from "antd";
+import { Button, Upload, Icon, Modal, Switch, Input } from "antd";
 import { UploadProps } from 'antd/lib/upload';
 import { connect } from "dva";
 import FileSaver from "file-saver";
 import compressFile from "./Compress";
 import { getCurrentMapFileItem } from './GetCurrentMapFileItem';
+import uid from './uid';
 @connect(({ file }: any) => ({ ...file }))
 export default class FileAction extends React.Component<any, any>{
     constructor(props: any) {
         super(props);
         this.downloadFile = this.downloadFile.bind(this);
         this.changeCompress = this.changeCompress.bind(this);
+        this.uploadFiles = this.uploadFiles.bind(this);
+        this.getFileInput = this.getFileInput.bind(this);
     }
 
     downloadFile(onlyCurrent) {
@@ -30,53 +33,62 @@ export default class FileAction extends React.Component<any, any>{
         this.props.dispatch({ type: "file/changeCompress", payload: { checked } });
     }
 
-    render() {
+    uploadFiles(append, e) {
         const t = this;
-        const { currentUid, mapfiles, compress } = this.props;
-        const uploadProps: (append) => UploadProps = (append) => ({
-            multiple: true,
-            beforeUpload: (file, fileList) => {
-                fileList = fileList || [];
-                let uploadArr: any[] = [];
-                let errarr: any[] = [];
-                fileList.map(cur => {
-                    if (/^.+\.json$/g.test(cur.name)) {
-                        uploadArr.push(cur);
-                    } else {
-                        errarr.push(cur);
+        let fileList = e.target.files || [];
+        let uploadArr: any[] = [];
+        let errarr: any[] = [];
+        for(let fileInd=0;fileInd<fileList.length;fileInd++){
+            let cur = fileList[fileInd];
+            if (/^.+\.json$/g.test(cur.name)) {
+                uploadArr.push(cur);
+            } else {
+                errarr.push(cur);
+            }
+        }
+        if (errarr && errarr.length) {
+            const names = errarr.map(s => s.name);
+            Modal.error({ title: "提示", content: `${names.join("、")}不是json文件，请导入json文件` });
+        }
+        if (uploadArr && uploadArr.length) {
+            let jsonarr: any[] = [];
+            uploadArr.map(cur => {
+                let reader = new FileReader();
+                reader.readAsText(cur);
+                reader.onload = function () {
+                    const result = reader.result as string;
+                    const json = JSON.parse(result || "{}");
+                    jsonarr.push({ data: json, filename: cur.name, uid: uid() });
+                    if (jsonarr.length == uploadArr.length) {
+                        t.props.dispatch({ type: "file/saveFileContent", payload: { mapfiles: jsonarr, append } });
                     }
-                });
-                if (errarr && errarr.length) {
-                    const names = errarr.map(s => s.name);
-                    Modal.error({ title: "提示", content: `${names.join("、")}不是json文件，请导入json文件` });
                 }
-                if (uploadArr && uploadArr.length) {
-                    let jsonarr: any[] = [];
-                    uploadArr.map(cur => {
-                        let reader = new FileReader();
-                        reader.readAsText(file);
-                        reader.onload = function () {
-                            const result = reader.result as string;
-                            const json = JSON.parse(result || "{}");
-                            jsonarr.push({ data: json, filename: cur.name, uid: cur.uid });
-                            if (jsonarr.length == uploadArr.length) {
-                                t.props.dispatch({ type: "file/saveFileContent", payload: { mapfiles: jsonarr, append } });
-                            }
-                        }
-                    });
-                }
-                return false;
-            },
-            showUploadList: false
-        });
+            });
+        }
+    }
+    fileInput = {};
+    getFileInput(append) {
+        const key = append ? "append" : "normal";
+        const click = () => {
+            if (!this.fileInput[key]) {
+                return;
+            }
+            this.fileInput[key].click();
+        }
+        return (
+            <Button type="primary" onClick={click}>
+                <input ref={el => this.fileInput[key] = el} onChange={this.uploadFiles.bind(this, false)} type="file" multiple={true} accept=".json" />
+                <Icon type="upload" />{append ? " 追加导入" : " 覆盖导入"}
+            </Button>
+        );
+    }
+
+    render() {
+        const { currentUid, compress } = this.props;
         return (
             <div className="file-action">
-                <Upload {...uploadProps(false)}>
-                    <Button type="primary"><Icon type="upload" /> 覆盖导入</Button>
-                </Upload>
-                <Upload {...uploadProps(true)}>
-                    <Button type="primary"><Icon type="upload" /> 追加导入</Button>
-                </Upload>
+                {this.getFileInput(false)}
+                {this.getFileInput(true)}
                 <Button onClick={this.downloadFile.bind(this, true)} disabled={!currentUid} type="primary">导出当前文件</Button>
                 <Button onClick={this.downloadFile.bind(this, false)} disabled={!currentUid} type="primary">导出全部文件</Button>
                 <div className="encode-switch">
