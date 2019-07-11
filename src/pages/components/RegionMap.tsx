@@ -44,9 +44,9 @@ export default class RegionMap extends React.Component<any, any>{
                 {
                     type: "map",
                     mapType: uid + "",
-                    top: "middle", // 到时候抽取出来
-                    left: 'center',// 到时候抽取出来
-                    aspectScale: 1,// 到时候抽取出来
+                    top: "middle",
+                    left: 'center',
+                    aspectScale: config[CONFIG_LABEL.SCALE],
                     selectedMode: "single",
                     data,
                     label: {

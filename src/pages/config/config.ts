@@ -2,7 +2,8 @@ export const CONFIG_LABEL = {
     MAP_WIDTH: "width",
     MAP_HEIGHT: "height",
     MAP_LABELSIZE: "labelfont",
-    MOVE_GAP: "gap"
+    MOVE_GAP: "gap",
+    SCALE: "scale"
 };
 export const TEMP_PREFIX = "inp";
 
@@ -10,7 +11,8 @@ export const DEFAULT_CONFIG = {
     [CONFIG_LABEL.MAP_WIDTH]: 600,
     [CONFIG_LABEL.MAP_HEIGHT]: 650,
     [CONFIG_LABEL.MAP_LABELSIZE]: 16,
-    [CONFIG_LABEL.MOVE_GAP]: 0.01
+    [CONFIG_LABEL.MOVE_GAP]: 0.01,
+    [CONFIG_LABEL.SCALE]: 1
 };
 export function getDefaultConfig() {
     let config = {};

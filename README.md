@@ -8,6 +8,5 @@
 5. 下载转码压缩[copy from echarts-map-tools]
 ======================================
 task:  
-1. 提取aspectRadio,left/top作为配置
-3. 集成electron
-4. 集成地图获取
+1. 集成electron
+2. 集成地图获取
