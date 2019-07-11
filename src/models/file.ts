@@ -1,16 +1,21 @@
-import { getDefaultConfig, CONFIG_LABEL, CP_FORMAT } from "../pages/config/config";
+import { getDefaultConfig, CONFIG_LABEL, CP_FORMAT, DEFAULT_COMPRESS } from "../pages/config/config";
 import echarts from "echarts";
 import numeral from "numeral";
 export default {
     namespace: "file",
     state: {
-        mapfile: null,
-        filename: "",
-        config: getDefaultConfig(),
-        areaname: "",
-        cpposition: []
+        mapfile: null,//json数据
+        filename: "",//文件名
+        config: getDefaultConfig(),//配置项
+        areaname: "",//选中区域名字
+        cpposition: [],//选中区域位置
+        compress: DEFAULT_COMPRESS//是否压缩转码
     },
     reducers: {
+        // 切换压缩转码选项
+        changeCompress(state, { payload: { checked } }) {
+            return { ...state, compress: checked };  
+        },
         // 读取文件后保存内容
         saveFileContent(state: any, { payload: { data, filename, uid } }: any) {
             return {
@@ -49,7 +54,7 @@ export default {
         },
         // 键盘移动触发cpposition改变
         movePosition(state: any, { payload: { ind, action } }) {
-            let { mapfile, config, areaname,cpposition } = state;
+            let { mapfile, config, areaname, cpposition } = state;
             const mapary = mapfile && mapfile.features || [];
             const item = mapary.find(s => s.properties && s.properties.name == areaname);
             // 找到这个area

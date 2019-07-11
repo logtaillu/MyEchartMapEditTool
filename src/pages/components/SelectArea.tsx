@@ -63,12 +63,12 @@ export default class SelectArea extends React.Component<any, any>{
             }
         });
         return areaname && areaname.length ? (
-            <div>
+            <div className="select-area">
                 <span>{areaname}：</span>
-                <span>x：</span>
-                <InputNumber {...numprops(0)} />
-                <span>y：</span>
-                <InputNumber {...numprops(1)} />
+                <span className="num-label">x</span>
+                <InputNumber className="x-num" {...numprops(0)} />
+                <span className="num-label">y</span>
+                <InputNumber className="y-num" {...numprops(1)} />
             </div>
         ) : null;
     }

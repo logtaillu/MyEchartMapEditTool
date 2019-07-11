@@ -1,0 +1,57 @@
+
+@line-gap:10px;
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+}
+// 导入导出按钮
+.file-action{
+  >*{
+    display: inline-block;
+    margin-bottom: @line-gap;
+  }
+  >*:not(:last-child){
+    margin-right: 20px;
+    vertical-align: middle;
+  }
+  .ant-btn-primary{
+    width: 120px;
+  }
+  .encode-switch,.encode-switch>*{
+    display: inline-block;
+    line-height: 32px;
+    vertical-align: middle;
+  }
+}
+
+// 参数项
+.config-line{
+  .config-item{
+    margin-bottom: @line-gap;
+    display: inline-block;
+    margin-right: 20px;
+    .ant-input-number{
+      width: 100px;
+    }
+  }
+}
+
+.filename{
+  margin-bottom: @line-gap;
+}
+.select-area{
+  margin-bottom: @line-gap;
+  .ant-input-number{
+    width: 120px;
+  }
+  .x-num{
+    margin-right: 20px;
+  }
+  .num-label{
+    margin-right: 10px;
+  }
+}

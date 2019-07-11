@@ -12,7 +12,7 @@ export default class Index extends React.Component<any, any> {
       <div className="root-wrapper">
         <FileAction />
         <MapConfigLine />
-        <div>{this.props.filename}</div>
+        <div className="filename">{this.props.filename}</div>
         <SelectArea/>
         {this.props.uid ? <RegionMap /> : null}
       </div>

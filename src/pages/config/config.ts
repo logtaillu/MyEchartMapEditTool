@@ -22,3 +22,5 @@ export function getDefaultConfig() {
 }
 // position格式化数字
 export const CP_FORMAT = "0.000000";
+// 默认的压缩选项
+export const DEFAULT_COMPRESS = true;

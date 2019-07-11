@@ -1,25 +1,32 @@
 // 文件导入和导出
 import React from 'react';
-import { Button, Upload, Icon, Modal } from "antd";
+import { Button, Upload, Icon, Modal, Switch } from "antd";
 import { UploadProps } from 'antd/lib/upload';
 import { connect } from "dva";
 import FileSaver from "file-saver";
+import compress from "./Compress";
 @connect(({ file }: any) => ({ ...file }))
 export default class FileAction extends React.Component<any, any>{
     constructor(props: any) {
         super(props);
         this.downloadFile = this.downloadFile.bind(this);
+        this.changeCompress = this.changeCompress.bind(this);
     }
 
     downloadFile() {
-        const { mapfile, filename } = this.props;
-        let downloadFile = new Blob([JSON.stringify(mapfile || "{}")], { type: "application/json" });
+        const { mapfile, filename, compress } = this.props;
+        let newfile = compress ? compress(mapfile) : mapfile;
+        let downloadFile = new Blob([JSON.stringify(newfile || "{}")], { type: "application/json" });
         FileSaver.saveAs(downloadFile, filename);
+    }
+
+    changeCompress(checked) {
+        this.props.dispatch({ type: "file/changeCompress", payload: { checked } });
     }
 
     render() {
         const t = this;
-        const { uid } = this.props;
+        const { uid, mapfile, compress } = this.props;
         const uploadProps: UploadProps = {
             beforeUpload: (file, fileList) => {
                 if (/^.+\.json$/g.test(file.name)) {
@@ -40,12 +47,17 @@ export default class FileAction extends React.Component<any, any>{
             },
             showUploadList: false
         }
+        const alreadyEncoding = mapfile && mapfile.UTF8Encoding;
         return (
             <div className="file-action">
                 <Upload {...uploadProps}>
                     <Button type="primary"><Icon type="upload" /> 导入文件</Button>
                 </Upload>
                 <Button onClick={this.downloadFile} disabled={!uid} type="primary">导出文件</Button>
+                <div className="encode-switch">
+                    <span>{alreadyEncoding ? "已转码" : "是否转码："}</span>
+                    {alreadyEncoding ? null : <Switch checked={compress} onChange={this.changeCompress} />}
+                </div>
             </div>
         )
     }
