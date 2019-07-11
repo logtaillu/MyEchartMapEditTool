@@ -20,7 +20,7 @@ export default {
         // 读取文件后保存内容
         saveFileContent(state: any, { payload: { mapfiles, append } }: any) {
             // 覆盖or追加
-            mapfiles = append ? (mapfiles || []) : (state.mapfiles || []).concat(mapfiles || []);
+            mapfiles = append ? (state.mapfiles || []).concat(mapfiles || []) : (mapfiles || []);
             let currentUid = state.currentUid;
             // 设置当前file
             if ((!append || !currentUid) && mapfiles && mapfiles.length) {
@@ -99,6 +99,22 @@ export default {
             }
             echarts.registerMap(curfile.uid + "", curfile.data);
             return { ...state, mapfiles: state.mapfiles.concat([]), cpposition: cp };
+        },
+        // 改变当前地图
+        changeMap(state, { payload: { uid } }) {
+            return { ...state, currentUid: uid, cpposition: [], areaname: "" };
+        },
+        // 删除地图
+        removeMap(state, { payload: { uid } }) {
+            let { mapfiles, currentUid } = state;
+            const index = mapfiles.findIndex(s => s.uid == uid);
+            if (index >= 0) {
+                mapfiles.splice(index, 1);
+            }
+            if (currentUid == uid) {
+                currentUid = mapfiles && mapfiles[0] && mapfiles[0].uid || "";
+            }
+            return { ...state, currentUid };
         }
     }
 }

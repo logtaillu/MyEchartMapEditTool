@@ -101,7 +101,7 @@ export default class FileAction extends React.Component<any, any>{
         }
         return (
             <Button type="primary" onClick={click}>
-                <input ref={el => this.fileInput[key] = el} onChange={this.uploadFiles.bind(this, false)} type="file" multiple={true} accept=".json" />
+                <input ref={el => this.fileInput[key] = el} onChange={this.uploadFiles.bind(this, append)} type="file" multiple={true} accept=".json" />
                 <Icon type="upload" />{append ? " 追加导入" : " 覆盖导入"}
             </Button>
         );
