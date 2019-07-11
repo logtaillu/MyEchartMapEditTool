@@ -5,8 +5,7 @@
 2. 显示地图
 3. 选择后键盘移动位置(没有cp的暂时不能进行移动)
 4. 导出文件
-5. 下载转码压缩[copy from echarts-map-tools]
-======================================
+5. 下载转码压缩[copy from echarts-map-tools]  
+***  
 task:  
-1. 集成electron
-2. 集成地图获取:datav的会403，可能要用高德的api，参照echarts-map-tools?
+1. 集成地图获取:datav的会403，可能要用高德的api，参照echarts-map-tools?
