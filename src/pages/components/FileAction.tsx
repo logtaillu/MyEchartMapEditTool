@@ -118,7 +118,7 @@ export default class FileAction extends React.Component<any, any>{
                 <div className="encode-switch">
                     <span className="desc">是否压缩</span>
                     <Switch checked={compress} onChange={this.changeCompress} />
-                    <span>*已压缩的不会重复压缩</span>
+                    <span className="tip">*已压缩的不会重复压缩</span>
                 </div>
             </div>
         )

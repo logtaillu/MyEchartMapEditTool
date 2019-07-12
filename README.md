@@ -6,9 +6,3 @@
 3. 选择后键盘移动位置(没有cp的暂时不能进行移动)
 4. 导出文件
 5. 下载转码压缩[copy from echarts-map-tools]  
-***  
-task:  
-1. 集成地图获取:datav的会403，可能要用高德的api，参照echarts-map-tools?再说吧
-2. 批量处理实现
-    1. 原功能是否正常
-    2. 地区名字修改
