@@ -111,6 +111,7 @@ export default {
         // 删除地图
         removeMap(state, { payload: { uid } }) {
             let { mapfiles, currentUid } = state;
+            mapfiles = mapfiles.concat([]);
             const index = mapfiles.findIndex(s => s.uid == uid);
             if (index >= 0) {
                 mapfiles.splice(index, 1);
