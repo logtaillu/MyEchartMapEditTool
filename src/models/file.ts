@@ -10,7 +10,8 @@ export default {
         config: getDefaultConfig(),//配置项
         areaname: "",//选中区域名字
         cpposition: [],//选中区域位置
-        compress: DEFAULT_COMPRESS//是否压缩转码
+        compress: DEFAULT_COMPRESS,//是否压缩转码
+        edited: false // 编辑状态
     },
     reducers: {
         // 切换压缩转码选项
@@ -25,11 +26,13 @@ export default {
             // 设置当前file
             if ((!append || !currentUid) && mapfiles && mapfiles.length) {
                 currentUid = mapfiles[0].uid;
+                return {
+                    ...state, edited: false, mapfiles, areaname: "",
+                    cpposition: [], currentUid
+                };
+            } else {
+                return { ...state, mapfiles, currentUid };
             }
-            return {
-                ...state, mapfiles, currentUid, areaname: "",
-                cpposition: []
-            };
         },
         // 保存配置
         saveConfig(state: any, { payload: { data } }) {
@@ -40,7 +43,7 @@ export default {
         areaSelect(state: any, { payload }) {
             const name = payload.name || "";
             if (name === state.areaname) {
-                return { ...state, areaname: "", cpposition: [] };
+                return { ...state, areaname: "", cpposition: [], edited: false };
             }
             const curfile = getCurrentMapFileItem(state);
             const mapary = curfile && curfile.data && curfile.data.features || [];
@@ -49,7 +52,8 @@ export default {
                 return {
                     ...state,
                     areaname: name,
-                    cpposition: (item.properties.cp || []).concat([])
+                    cpposition: (item.properties.cp || []).concat([]),
+                    edited: false
                 };
             } else {
                 return { ...state };
@@ -102,7 +106,7 @@ export default {
         },
         // 改变当前地图
         changeMap(state, { payload: { uid } }) {
-            return { ...state, currentUid: uid, cpposition: [], areaname: "" };
+            return { ...state, currentUid: uid, cpposition: [], areaname: "", edited: false };
         },
         // 删除地图
         removeMap(state, { payload: { uid } }) {
@@ -113,8 +117,25 @@ export default {
             }
             if (currentUid == uid) {
                 currentUid = mapfiles && mapfiles[0] && mapfiles[0].uid || "";
+                return { ...state, mapfiles, currentUid, cpposition: [], areaname: "", edited: false };
+            } else {
+                return { ...state, mapfiles, currentUid };
             }
-            return { ...state, currentUid };
+        },
+        // 地区名字更改
+        saveEdited(state, { payload: { edited, name } }) {
+            let { areaname } = state;
+            if (edited === false && name && name.length) {
+                const curfile = getCurrentMapFileItem(state);
+                const mapary = curfile && curfile.data && curfile.data.features || [];
+                const item = mapary.find(s => s.properties && s.properties.name == state.areaname);
+                if (item) {
+                    item.properties.name = name;
+                    areaname = name;
+                    echarts.registerMap(curfile.uid + "", curfile.data);
+                }
+            }
+            return { ...state, edited, areaname };
         }
     }
 }

@@ -1,7 +1,7 @@
 // 位移
 import React from 'react';
 import { connect } from "dva";
-import { InputNumber } from 'antd';
+import { InputNumber, Icon, Input, Button } from 'antd';
 import { CONFIG_LABEL, CP_FORMAT } from "../config/config";
 import numeral from "numeral";
 
@@ -12,7 +12,17 @@ export default class SelectArea extends React.Component<any, any>{
         super(props);
         this.change = this.change.bind(this);
         this.keyListen = this.keyListen.bind(this);
+        this.changeEdited = this.changeEdited.bind(this);
+        this.saveName = this.saveName.bind(this);
         window.addEventListener("keydown", this.keyListen);
+    }
+
+    changeEdited() {
+        this.props.dispatch({ type: "file/saveEdited", payload: { edited: true } });
+    }
+
+    saveName(name) {
+        this.props.dispatch({ type: "file/saveEdited", payload: { edited: false, name } });
     }
 
     keyListen(event) {
@@ -38,11 +48,32 @@ export default class SelectArea extends React.Component<any, any>{
     change(ind, value) {
         const regexp = /^\d*\.?\d*$/;
         if (regexp.test(value + "")) {
-            value = value === "" ? "": numeral(numeral(value).format(CP_FORMAT)).value();
+            value = value === "" ? "" : numeral(numeral(value).format(CP_FORMAT)).value();
         } else {
             value = this.props.cpposition[ind];
         }
         this.props.dispatch({ type: "file/saveCPPosition", payload: { ind, value } });
+    }
+
+    getNameComponent() {
+        if (this.props.edited) {
+            return (
+                <span className="editinput mar10">
+                    <Input.Search
+                        defaultValue={this.props.areaname}
+                        enterButton={<Icon type="save" />}
+                        onSearch={this.saveName}
+                        suffix={<Button type="primary" onClick={this.saveName.bind(this,"")}><Icon type="close" /></Button>}
+                    />
+                </span>
+            )
+        } else {
+            return (
+                <span className="mar10">
+                    {this.props.areaname}<Icon type="edit" onClick={this.changeEdited}/>
+                </span>
+            )
+        }
     }
 
     render() {
@@ -64,12 +95,12 @@ export default class SelectArea extends React.Component<any, any>{
         });
         return areaname && areaname.length ? (
             <div className="select-area">
-                <span>{areaname}：</span>
-                <span className="num-label">x</span>
+                {this.getNameComponent()}
+                <span className="num-label mar10">x</span>
                 <InputNumber className="x-num" {...numprops(0)} />
-                <span className="num-label">y</span>
+                <span className="num-label mar10">y</span>
                 <InputNumber className="y-num" {...numprops(1)} />
             </div>
-        ) : null;
+        ) : <div style={{height:"32px",marginBottom:10}}/>;
     }
 }
