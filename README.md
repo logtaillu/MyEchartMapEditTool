@@ -13,4 +13,3 @@
 ## Task
 1. show part map of selected area and save part cp
 2. question: 在region map里存下part cp[好像不符合geojson格式]还是单独做一个part json，命名xxx_part.json，part map的时候取这个json?
-3. 对于没有cp的地区，能否得到初始cp?

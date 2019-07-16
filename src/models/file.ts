@@ -2,6 +2,8 @@ import { getDefaultConfig, CONFIG_LABEL, CP_FORMAT, DEFAULT_COMPRESS } from "../
 import echarts from "echarts";
 import numeral from "numeral";
 import { getCurrentMapFileItem } from '@/pages/components/GetCurrentMapFileItem';
+import parseGeoJson from "echarts/lib/coord/geo/parseGeoJson";
+import $ from "n-zepto";
 export default {
     namespace: "file",
     state: {
@@ -22,6 +24,18 @@ export default {
         saveFileContent(state: any, { payload: { mapfiles, append } }: any) {
             // 覆盖or追加
             mapfiles = append ? (state.mapfiles || []).concat(mapfiles || []) : (mapfiles || []);
+            mapfiles.map(s => {
+                if (s.data && !s.handledCPs) {
+                    const data = $.extend(true, {}, s.data);
+                    const parsed = parseGeoJson(data);
+                    (s.data.features || []).map((region,idx) => {
+                        if (!(region.properties && region.properties.cp)) {
+                            region.properties.cp = parsed[idx].center;
+                        }
+                    });
+                }
+                s.handledCPs = true;
+            });
             let currentUid = state.currentUid;
             // 设置当前file
             if ((!append || !currentUid) && mapfiles && mapfiles.length) {
@@ -48,7 +62,7 @@ export default {
             const curfile = getCurrentMapFileItem(state);
             const mapary = curfile && curfile.data && curfile.data.features || [];
             const item = mapary.find(s => s.properties && s.properties.name == name);
-            if (item && item.properties.cp) {
+            if (item && item.properties) {
                 return {
                     ...state,
                     areaname: name,
